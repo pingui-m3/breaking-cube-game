@@ -132,25 +132,51 @@ const justPlaySound = () =>
 /**
  * Utils
  */
-const objectsToUpdate = []
+let objectsToUpdate = []
 
+const raycaster = new THREE.Raycaster()
+
+/**
+ * Mouse
+ */
+const mouse = new THREE.Vector2()
+
+window.addEventListener('mousemove', (event) =>
+{
+    mouse.x = event.clientX / sizes.width * 2 - 1;
+    mouse.y = - (event.clientY / sizes.height) * 2 + 1;
+})
+
+window.addEventListener('click', () =>
+{
+    if(currentIntersect)
+    {
+        currentIntersect.object.material.color.set('#00ffff')
+        console.log(currentIntersect.object)
+        scene.remove(currentIntersect.object)
+        objectsToUpdate = objectsToUpdate.filter(item => item !== currentIntersect.object)
+        console.log(objectsToUpdate.length)
+    }
+})
 
 // Create box
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
-const boxMaterial = new THREE.MeshStandardMaterial({
-    metalness: 0.3,
-    roughness: 0.4,
-    envMap: environmentMapTexture,
-    envMapIntensity: 0.5
-})
+
 const createBox = (width, height, depth, position) =>
 {
+    const boxMaterial = new THREE.MeshStandardMaterial({
+        metalness: 0.3,
+        roughness: 0.4,
+        color: '#ffff77',
+        envMap: environmentMapTexture,
+        envMapIntensity: 0.5
+    });
+
     // Three.js mesh
     const mesh = new THREE.Mesh(boxGeometry, boxMaterial)
     mesh.scale.set(width, height, depth)
     mesh.castShadow = true
     mesh.position.copy(position)
-    mesh.addEventListener('click', justPlaySound);
     scene.add(mesh)
 
     objectsToUpdate.push(mesh);
@@ -183,6 +209,8 @@ for (let z = 0; z < 10; z++) {
 const clock = new THREE.Clock()
 let oldElapsedTime = 0
 
+let currentIntersect = null;
+
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
@@ -192,11 +220,24 @@ const tick = () =>
     // Update controls
     controls.update()
 
+    raycaster.setFromCamera(mouse, camera)
+    
+    const intersects = raycaster.intersectObjects(objectsToUpdate, false)
+
+    if (intersects.length) {
+        if(!currentIntersect) {
+            console.log('mouse enter')
+        }
+        currentIntersect = intersects[0];
+    } else {
+        currentIntersect = null;
+    }
+
     // Render
     renderer.render(scene, camera)
 
     // Call tick again on the next frame
-    window.requestAnimationFrame(tick)
+    window.requestAnimationFrame(tick)    
 }
 
 tick()
