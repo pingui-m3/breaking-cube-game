@@ -1,0 +1,19 @@
+{
+  "name": "breaking-cube-game",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "author": "Hugo Mercado",
+  "devDependencies": {
+    "vite": "^5.3.3",
+    "vite-plugin-restart": "^0.4.1"
+  },
+  "dependencies": {
+    "cannon": "^0.6.2",
+    "lil-gui": "^0.19.2",
+    "three": "^0.166.1"
+  }
+}
